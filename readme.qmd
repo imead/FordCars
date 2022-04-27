@@ -1,0 +1,8 @@
+---
+title: "Ford Car Analysis with Julia"
+date: "4/26/2022"
+format: gfm
+---
+
+This is an exercise to explore functions and use of the Julia packages DataFrames.jl and CairoMakie.jl. This is also intended to be an exploration of the functionality of Quarto markdown framework.
+
