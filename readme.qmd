@@ -1,7 +1,0 @@
----
-title: "Analysis of Ford Cars Dataset"
-subtitle: "Testing functions for Julia packages DataFrame and CarioMakie. Also testing functionality of Quarto for reporting formats."
-date: "4/26/2022"
-abstract: "Using data source from Kaggle [Ford Car Price Prediction](https://www.kaggle.com/datasets/adhurimquku/ford-car-price-prediction) by Adhurim Quku."
-format: html
----
