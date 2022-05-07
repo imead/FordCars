@@ -103,4 +103,26 @@ df = loadford()
 df[df.model .== ("Focus"), :]
 loadford()[loadford().model .== ("Focus"), :]  # this does not work as functio, only returns one row
 
+###### SUBSETTING ######
+# helps with missing values, works on complete columns
+subset(df, :model => ByRow(model -> model == "Focus"))
+
+# argument for subset that helps with missing values
+subset(df, :model => ByRow(model -> model == "Focus"); skipmissing=true)
+
+
+####### Select #######
+# can be used to remove column and more
+# select two columns
+select(loadford(), :model, :fuelType)
+# remove column keeping all others
+select(loadford(), Not(:fuelType))
+# mix and match to move columns around
+select(loadford(), :engineSize, Not(:engineSize))
+# move mileage to second location
+select(loadford(), 1, :mileage, :)
+
+# rename columns
+select(loadford(), :tax => "taxDollars", :)
+
 
