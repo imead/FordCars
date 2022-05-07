@@ -66,4 +66,41 @@ modelnames(df) = df[1:10, :model]
 modelnames(loadford())
 
 
-## testing filter function in DataFrames
+## testing filter function in DataFrames - simple one line function
+## simple bool function to look for string
+boomFiesta(model::String) = model == "Fiesta"
+boomFiesta("Fiesta") 
+boomFiesta("MachE")
+
+# filter for rows only with Fiesta
+# the code in the book wasn't working, I think because of the different
+# structure of my DataFrame. Below is the code I've found on Discourse
+# but it only returns one row...
+filter(x -> x[String("model")] == "Focus",loadford())
+
+# these also only return one row. I am wondering if it is part of me
+# storing a dataframe inside of a function...
+filter(row -> row.model == "Focus", loadford())
+loadford()[loadford().model .== "Focus", :]
+
+df = loadford()
+filter(x -> x[String("model")] == "Focus",df)
+filter(row -> row.model == "Focus", df)
+
+# THIS works...and it works with the loadford function as well
+# occursin makes this a more flexible and less specific filter
+# like a contains. I would like a more specific filter option too
+x = filter(y -> any(occursin.(["Focus"], y.model)),loadford())
+
+# interestingly while the first one only returns a single row
+# the second one returns the whole dataframe minus 1 including
+# rows with Focus in it.
+filter(:model => ==("Focus"), loadford())  # this also works IF loadford function is replaced with df
+filter(:model => !=("Focus"), loadford())
+
+# THIS WORKS. indexing with broadcasting works perfectly.
+df = loadford()
+df[df.model .== ("Focus"), :]
+loadford()[loadford().model .== ("Focus"), :]  # this does not work as functio, only returns one row
+
+
