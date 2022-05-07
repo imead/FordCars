@@ -126,3 +126,55 @@ select(loadford(), 1, :mileage, :)
 select(loadford(), :tax => "taxDollars", :)
 
 
+###### using CategoricalArrays ######
+using StatsBase
+# This returns a dict with all the categories for that column
+# Electric, Hybrid, Diesel, Petrol, Other
+countmap(df.fuelType)
+
+
+using CategoricalArrays
+# practice ordering fuelType by arbitrary ecofriendly-ness
+function categoryFuelType(df)
+    levels = ["Electric", "Hybrid", "Petrol", "Diesel", "Other"]
+    fuelType = categorical(df[!, :fuelType]; levels, ordered=true)
+    df[!, :fuelType] = fuelType
+    df
+end
+
+df = categoryFuelType(loadford())
+sort(df, :fuelType)
+
+
+###### JOINS ######
+# current dataset not great for joins so will practice with book dataframes
+function grades_2020()
+    name = ["Sally", "Bob", "Alice", "Hank"]
+    grade_2020 = [1, 5, 8.5, 4]
+    DataFrame(; name, grade_2020)
+end
+grades_2020()
+
+function grades_2021()
+    name = ["Bob 2", "Sally", "Hank"]
+    grade_2021 = [9.5, 9.5, 6.0]
+    DataFrame(; name, grade_2021)
+end
+grades_2021()
+
+# inner join
+innerjoin(grades_2020(), grades_2021(); on=:name)
+
+# outer join, will give missing type to those without values
+outerjoin(grades_2020(), grades_2021(); on=:name)
+
+# cartesian crossjoin
+crossjoin(grades_2020(), grades_2021(); makeunique=true)
+
+# also are normal leftjoin and rightjoin
+
+#semijoin returns the elements from the left df that are in both dfs
+semijoin(grades_2020(), grades_2021(); on=:name)
+
+# antijoin returns electments from the left df that are not in the right df
+antijoin(grades_2020(), grades_2021(); on=:name)
