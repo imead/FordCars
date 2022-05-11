@@ -10,7 +10,7 @@ catnames = ["Lupin", "Big Kitty", "Hunter"]
 badcatindex = [1, 3, 5]
 df = DataFrame(; CatName=catnames, BadCatIndex=badcatindex)
 
-## If produced outside of a function, will start cluttering workspace with functions
+## If outside of a function, will start cluttering workspace with variables
 ## Recall that ; triggers named tuple construction.
 function badcats()
     catnames = ["Lupin", "Big Kitty", "Hunter"]
@@ -95,13 +95,15 @@ x = filter(y -> any(occursin.(["Focus"], y.model)),loadford())
 # interestingly while the first one only returns a single row
 # the second one returns the whole dataframe minus 1 including
 # rows with Focus in it.
-filter(:model => ==("Focus"), loadford())  # this also works IF loadford function is replaced with df
+# this also works IF loadford function is replaced with df
+filter(:model => ==("Focus"), loadford())  
 filter(:model => !=("Focus"), loadford())
 
 # THIS WORKS. indexing with broadcasting works perfectly.
+# this does not work as function, only returns one row
 df = loadford()
 df[df.model .== ("Focus"), :]
-loadford()[loadford().model .== ("Focus"), :]  # this does not work as functio, only returns one row
+loadford()[loadford().model .== ("Focus"), :]  
 
 ###### SUBSETTING ######
 # helps with missing values, works on complete columns
@@ -178,3 +180,22 @@ semijoin(grades_2020(), grades_2021(); on=:name)
 
 # antijoin returns electments from the left df that are not in the right df
 antijoin(grades_2020(), grades_2021(); on=:name)
+
+################################################################################
+#################### VARIABLE TRANSFORMATIONS ####################
+################################################################################
+
+# add +1 to the numeric variable engineSize
+addEngine(engine) = engine .+ 1
+transform(loadford(), :engineSize => addEngine)
+# replace old column with new calculated column
+transform(loadford(), :engineSize => addEngine; renamecols=false)
+# use select formatting, but dataframes option is more efficient
+select(loadford(), :, :engineSize => addEngine => :engineSize)
+
+#################### MULTIPLE TRANSFORMATIONS ####################
+
+# create new column via logic from two existing and filter for true
+pass(A, B) = [12000 < a && 100 < b for (a, b) in zip(A, B)]
+df = transform(loadford(), [:price, :tax] => pass; renamecols=false)
+passed = subset(df, :price_tax; skipmissing=true)
