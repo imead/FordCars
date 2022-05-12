@@ -199,3 +199,94 @@ select(loadford(), :, :engineSize => addEngine => :engineSize)
 pass(A, B) = [12000 < a && 100 < b for (a, b) in zip(A, B)]
 df = transform(loadford(), [:price, :tax] => pass; renamecols=false)
 passed = subset(df, :price_tax; skipmissing=true)
+
+################################################################################
+#################### Groupby and Combine ####################
+################################################################################
+
+# Julia borrows from TidyVerse methods of split dataset into distinct groups,
+# applying one or more functions to the groups, then combines result.
+
+# this results in 24 groups broken up by model of car
+groupby(loadford(), :model)
+
+# load Statistics
+using Statistics
+
+# calculate mean mpg of each model (group)
+gdf = groupby(loadford(), :model)
+combine(gdf, :mpg => mean)
+
+################################################################################
+#################### Data Viz with Makie.jl ####################
+################################################################################
+
+# interactive 2D and 3D graphics
+using GLMakie
+GLMakie.activate!()
+
+# saving plots, can use png, svg, pdf, pt_per_unit adjusts size
+save("filename.pdf, fig; pt_per_unit=0.5")
+
+#################### CairoMakie.jl #################### 
+
+# non-interactive 2D vector graphics
+using CairoMakie
+CairoMakie.activate!()
+
+# generate basic plot, very slow
+fig = scatterlines(1:10, 1:10)
+
+# when generated, each plot, figure, axis goes into a collection called FigureAxisPlot
+# but mutated objects using a !, return plot object that can be appended.
+
+fig, ax, pltobj = scatterlines(1:10)
+# outputs attributes into REPL
+pltobj.attributes
+
+# generate more complex graph
+lines(1:10, (1:10).^2; color=:black, linewidth=2, linestyle=:dash,
+    figure=(; figure_padding=5, resolution=(600, 400), font="sans",
+        backgroundcolor=:grey90, fontsize=16),
+    axis=(; xlabel="x", ylabel="x²", title="title",
+        xgridstyle=:dash, ygridstyle=:dash))
+current_figure()
+
+# adding a legend
+lines(1:10, (1:10).^2; label="x²", linewidth=2, linestyle=nothing,
+    figure=(; figure_padding=5, resolution=(600, 400), font="sans",
+        backgroundcolor=:grey90, fontsize=16),
+    axis=(; xlabel="x", title="title", xgridstyle=:dash,
+        ygridstyle=:dash))
+scatterlines!(1:10, (10:-1:1).^2; label="Reverse(x)²")
+axislegend("legend"; position=:ct)
+current_figure()
+
+# if need to make many plots, can set theme
+set_theme!(; resolution=(600, 400),
+    backgroundcolor=(:orange, 0.5), fontsize=16, font="sans",
+    Axis=(backgroundcolor=:grey90, xgridstyle=:dash, ygridstyle=:dash),
+    Legend=(bgcolor=(:red, 0.2), framecolor=:dodgerblue))
+lines(1:10, (1:10).^2; label="x²", linewidth=2, linestyle=nothing,
+    axis=(; xlabel="x", title="title"))
+scatterlines!(1:10, (10:-1:1).^2; label="Reverse(x)²")
+axislegend("legend"; position=:ct)
+current_figure()
+set_theme!()
+# see results
+current_figure()
+
+# example with array of attributes, make random array
+using Random: seed!
+seed!(28)
+xyvals = randn(100, 3)
+xyvals[1:5, :]
+
+# make a colorful bubbleplot
+fig, ax, pltobj = scatter(xyvals[:, 1], xyvals[:, 2]; color=xyvals[:, 3],
+    label="Bubbles", colormap=:plasma, markersize=15 * abs.(xyvals[:, 3]),
+    figure=(; resolution=(600, 400)), axis=(; aspect=DataAspect()))
+limits!(-3, 3, -3, 3)
+Legend(fig[1, 2], ax, valign=:top)
+Colorbar(fig[1, 2], pltobj, height=Relative(3 / 4))
+fig
