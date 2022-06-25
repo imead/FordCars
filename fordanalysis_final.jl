@@ -8,7 +8,7 @@ using StatsBase
 
 ## store import df in function for ease of reloading
 function loadford()
-    path = "ford.csv"
+    path = "data/ford.csv"
     CSV.read(path, DataFrame)
 end
 
@@ -33,3 +33,6 @@ forddf[forddf.year .== 2060, :]
 ## some outlier years or errors need to be removed, want to subset from 2011-2020
 forddf1 = filter(:year => year -> year >= 2011 && year <= 2020, forddf)
 countmap(forddf1.year)
+
+forddf2 = filter(:fuelType => fuelType -> fuelType != "Electric" && fuelType != "Other", forddf1)
+countmap(forddf2.fuelType)
